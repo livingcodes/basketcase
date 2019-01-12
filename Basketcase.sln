@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27703.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Basketcase", "Basketcase\Basketcase.csproj", "{ACE5088F-4A25-4C6A-BC37-461D6BE06CF7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Basketcase.Tests", "Basketcase.Tests\Basketcase.Tests.csproj", "{B696B570-CD2B-41ED-AFEB-351847772237}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{ACE5088F-4A25-4C6A-BC37-461D6BE06CF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ACE5088F-4A25-4C6A-BC37-461D6BE06CF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ACE5088F-4A25-4C6A-BC37-461D6BE06CF7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B696B570-CD2B-41ED-AFEB-351847772237}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B696B570-CD2B-41ED-AFEB-351847772237}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B696B570-CD2B-41ED-AFEB-351847772237}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B696B570-CD2B-41ED-AFEB-351847772237}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
