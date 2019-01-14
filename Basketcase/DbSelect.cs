@@ -69,8 +69,10 @@ namespace Basketcase
             // get from cache
             if (cacheKey != null) {
                 var cacheValue = cache.Get<T>(cacheKey);
-                if (cacheValue != null)
+                if (cacheValue != null) {
+                    setQueryToNull();
                     return (T)cacheValue;
+                }
             }
 
             // sql syntax
@@ -218,6 +220,7 @@ namespace Basketcase
             pageNumber = 0;
             pageSize = 0;
             parameters = new List<(string name, object value)>();
+            cacheKey = null;
         }
         
         public IDb Cache(string key, DateTime expiration) {
