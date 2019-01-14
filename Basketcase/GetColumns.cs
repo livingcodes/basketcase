@@ -23,7 +23,7 @@ namespace Basketcase
             if (columnNameList == null) {
                 // get from database
                 columnNameList = db.Select<string>(
-                    $@"SELECT COLUMN_NAME FROM Tent.INFORMATION_SCHEMA.COLUMNS
+                    $@"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
                     WHERE TABLE_NAME = '{tableName}'"
                 );
                 if (cache != null)
