@@ -35,13 +35,19 @@ namespace Basketcase.Tests
             );
         }
         
-        protected static void createPostTable() {
-            var sql = new Table("Post")
+        protected static void createTable(string tableName) {
+            var sql = new Table(tableName)
                 .AddColumn("Id", SqlType.Int, Syntax.Identity(1, 1))
                 .AddColumn("Html", SqlType.VarChar(200))
                 .End()
                 .Sql;
             db.Execute(sql);
+        }
+
+        protected static void createPostTable() {
+            createTable("Post");
+            for (var i = 0; i < 4; i++)
+                db.Insert(new Post { Html = $"Post {i}" });
         }
 
         protected void assert(bool condition) {

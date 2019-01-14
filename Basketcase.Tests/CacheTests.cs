@@ -8,10 +8,11 @@ namespace Basketcase.Tests
         [ClassInitialize]
         public static void InitializeClass(TestContext context) {
             initialize();
-            createPostTable();
-            for (var i = 0; i < 4; i++)
-                db.Insert(new Post { Html = $"Post {i}" });
         }
+
+        [TestInitialize]
+        public void RunBeforeEachTest() =>
+            createPostTable();
 
         [TestMethod] public void CacheBySeconds() {
             var posts = db

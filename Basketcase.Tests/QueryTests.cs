@@ -5,12 +5,12 @@ namespace Basketcase.Tests
     [TestClass] public class QueryTests : BaseTests
     {
         [ClassInitialize]
-        public static void InitializeClass(TestContext context) {
+        public static void InitializeClass(TestContext context) =>
             initialize();
+
+        [TestInitialize]
+        public void RunBeforeEachTest() =>
             createPostTable();
-            for (var i=0; i<4; i++)
-                db.Insert(new Post { Html = $"Post {i}" });
-        }
 
         [TestMethod] public void QueryMultiple() {
             var posts = db.Select<Post>("select * from post");
