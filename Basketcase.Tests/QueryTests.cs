@@ -68,5 +68,10 @@ namespace Basketcase.Tests
             var post = db.SelectOne<Post>("select top 1 * from post where id > @min and id < @max", 2, 4);
             assert(post.Id == 3);
         }
+
+        [TestMethod] public void QueryOneById() {
+            var post = db.SelectById<Post>(2);
+            assert(post.Id == 2);
+        }
     }
 }

@@ -45,5 +45,27 @@ namespace Basketcase.Tests
                 .Select<Post>();
             assert(posts[0].Id == 2);
         }
+
+        [TestMethod] public void CacheOne() {
+            var post = db
+                .Cache("CacheSelectOne", 60)
+                .SelectOne<Post>("select * from post where id = 2");
+            assert(post.Id == 2);
+
+            var cached = db.Cache("CacheSelectOne", 60)
+                .SelectOne<Post>("anything");
+            assert(cached.Id == 2);
+        }
+
+        [TestMethod] public void CacheOneById() {
+            var post = db
+                .Cache("CacheOneById", 60)
+                .SelectById<Post>(2);
+            assert(post.Id == 2);
+
+            var cached = db.Cache("CacheOneById", 60)
+                .SelectOne<Post>("anything");
+            assert(post.Id == 2);
+        }
     }
 }
