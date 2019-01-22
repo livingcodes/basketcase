@@ -35,22 +35,29 @@ namespace Basketcase.Tests
             assert(id == 1);
             assert(rows == 1);
 
-            var posts = db.Select<Profile>("select * from profile where id = 1");
-            assert(posts.Count == 1);
-            var post = posts[0];
-            assert(post.Html == "B");
+            var profiles = db.Select<Profile>("select * from profile where id = 1");
+            assert(profiles.Count == 1);
+            var profile = profiles[0];
+            assert(profile.Html == "B");
             
-            post.Html = "c";
-            rows = db.Update(post);
+            profile.Html = "c";
+            rows = db.Update(profile);
             assert(rows == 1);
-            posts = db.Select<Profile>("select * from profile where id = 1");
-            post = posts[0];
-            assert(post.Html == "c");
+            profiles = db.Select<Profile>("select * from profile where id = 1");
+            profile = profiles[0];
+            assert(profile.Html == "c");
 
             rows = db.Delete<Profile>(1);
             assert(rows == 1);
-            posts = db.Select<Profile>("select * from profile where id = 1");
-            assert(posts.Count == 0);
+            profiles = db.Select<Profile>("select * from profile where id = 1");
+            assert(profiles.Count == 0);
+        }
+
+        [TestMethod] public void ExecuteWithParameter() {
+            db.Admin.Truncate("Profile");
+
+            db.Execute("insert into profile values (@html)", "<h1>hello</h1>");
+            assert(db.Select<Profile>().Count == 1);
         }
     }
 }

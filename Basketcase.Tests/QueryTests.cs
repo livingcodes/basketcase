@@ -73,5 +73,10 @@ namespace Basketcase.Tests
             var post = db.SelectById<Post>(2);
             assert(post.Id == 2);
         }
+
+        [TestMethod] public void DefaultIsSelectAll() {
+            var posts = db.Select<Post>();
+            assert(posts.Count == 4);
+        }
     }
 }

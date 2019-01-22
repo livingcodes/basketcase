@@ -26,6 +26,12 @@ namespace Basketcase
             if (sql == null || sql == "")
                 sql = this.sql;
 
+            // if sql is not set then select all
+            if (sql == null || sql == "") {
+                var tableName = this.tableName.Get<T>();
+                sql = $"SELECT * FROM [{tableName}]";
+            }
+
             if (!IsSproc && (
                sql.ToUpper().StartsWith("WHERE ")
             || sql.ToUpper().StartsWith("GROUP BY ")
