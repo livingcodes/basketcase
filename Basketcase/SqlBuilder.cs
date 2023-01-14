@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.SqlClient;
+using System.Reflection;
 
 namespace Basketcase
 {
@@ -39,6 +40,22 @@ namespace Basketcase
                 command.Parameters.AddWithValue("@" + property.Name, value);
                 values += "@" + property.Name + ", ";
             }
+
+            var fields = typeof(T).GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+            foreach (var field in fields) {
+                if (field.Name.ToUpper() == "ID")
+                    continue;
+                if (!tableColumns.Contains(field.Name))
+                    continue;
+                var value = field.GetValue(instance);
+                if (value is null)
+                    value = DBNull.Value;
+                columnNames += field.Name + ", ";
+
+                command.Parameters.AddWithValue("@" + field.Name, value);
+                values += "@" + field.Name + ", ";
+            }
+
             columnNames = columnNames.Substring(0, columnNames.Length - 2);
             values = values.Substring(0, values.Length - 2);
             var sql = $@"INSERT INTO [{tableName}] ({columnNames}) VALUES ({values})
@@ -49,6 +66,7 @@ namespace Basketcase
         public string BuildUpdateSql() {
             var tableName = this.tableName.Get(instance);
             var properties = typeof(T).GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+            var fields = typeof(T).GetFields(BindingFlags.Instance | BindingFlags.Public);
             var tableColumns = new GetColumns().From(tableName, db, cache);
             var setters = "";
             var id = "0";
@@ -69,6 +87,18 @@ namespace Basketcase
                 setters += $"{property.Name} = @{property.Name}, ";
 
                 command.Parameters.AddWithValue("@" + property.Name, value);
+            }
+            foreach (var field in fields) {
+                if (field.Name.ToUpper() == "ID") {
+                    var objId = field.GetValue(instance);
+                    id = objId == null ? "0" : objId.ToString();
+                    continue;
+                }
+                var value = field.GetValue(instance);
+                if (value == null)
+                   value = DBNull.Value;
+                setters += $"{field.Name} = @{field.Name}, ";
+                command.Parameters.AddWithValue("@" + field.Name, value);
             }
             setters = setters.Substring(0, setters.Length - 2);
             var sql = $@"update [{tableName}] set {setters} where id = {id}";

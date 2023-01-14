@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 using static Basketcase.Table;
+using System;
 
 namespace Basketcase.Tests
 {
@@ -39,6 +40,7 @@ namespace Basketcase.Tests
             var sql = new Table(tableName)
                 .AddColumn("Id", SqlType.Int, Syntax.Identity(1, 1))
                 .AddColumn("Html", SqlType.VarChar(200))
+                .AddColumn("DateCreated", SqlType.DateTime)
                 .End()
                 .Sql;
             db.Execute(sql);
@@ -57,6 +59,7 @@ namespace Basketcase.Tests
         public class Post {
             public int Id { get; set; }
             public string Html { get; set; }
+            public DateTime DateCreated = DateTime.Now;
         }
     }
 }

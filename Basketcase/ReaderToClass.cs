@@ -14,6 +14,7 @@ namespace Basketcase
             var item = default(T);
             var columns = new GetColumns().From(reader);
             var properties = typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public);
+            var fields = typeof(T).GetFields(BindingFlags.Instance | BindingFlags.Public);
             while (reader.Read()) {
                 item = Activator.CreateInstance<T>();
                 foreach (var property in properties) {
@@ -23,6 +24,15 @@ namespace Basketcase
                         if (value == DBNull.Value)
                             value = null;
                         property.SetValue(item, value);
+                    }
+                }
+
+                foreach (var field in fields) { 
+                    if (columns.Contains(field.Name)) { 
+                        object value = reader[field.Name];
+                        if (value == DBNull.Value)
+                            value = null;
+                        field.SetValue(item, value);
                     }
                 }
                 break;
