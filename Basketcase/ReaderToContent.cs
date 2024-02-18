@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Data;
-
 namespace Basketcase
 {
     public class ReaderToItem<T> : IReaderConverter<T>

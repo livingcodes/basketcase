@@ -1,6 +1,4 @@
-﻿using System.Data;
-
-namespace Basketcase
+﻿namespace Basketcase
 {
     public class ReaderToDataTable : IReaderConverter<DataTable>
     {

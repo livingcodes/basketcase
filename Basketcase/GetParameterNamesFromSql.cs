@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Basketcase
+﻿namespace Basketcase
 {
     public class GetParameterNamesFromSql
     {

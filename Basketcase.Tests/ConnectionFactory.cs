@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using System.Data.SqlClient;
 
 namespace Basketcase.Tests
 {
@@ -11,6 +10,6 @@ namespace Basketcase.Tests
         string connectionString;
 
         public IDbConnection Create() =>
-            new SqlConnection(connectionString);
+            new Microsoft.Data.SqlClient.SqlConnection(connectionString);
     }
 }

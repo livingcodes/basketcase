@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
-
 namespace Basketcase
 {
     public class ReaderToList<T> : IReaderConverter<List<T>>
