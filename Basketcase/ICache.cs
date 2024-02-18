@@ -1,8 +1,6 @@
-﻿namespace Basketcase
+﻿namespace Basketcase;
+public interface ICache
 {
-    public interface ICache
-    {
-        T Get<T>(string key);
-        void Set(string key, object value, int seconds);
-    }
+  T Get<T>(str key);
+  void Set(str key, obj val, int sec);
 }

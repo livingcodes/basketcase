@@ -1,13 +1,11 @@
-﻿namespace Basketcase
+﻿namespace Basketcase;
+public class ReaderToValueList<T> : IReaderConverter<List<T>>
 {
-    public class ReaderToValueList<T> : IReaderConverter<List<T>>
-    {
-        public List<T> Convert(IDataReader reader) {
-            var list = new List<T>();
-            while (reader.Read()) {
-                list.Add((T)reader[0]);
-            }
-            return list;
-        }
+  public List<T> Convert(IDataReader rdr) {
+    var ls = new List<T>();
+    while (rdr.Read()) {
+      ls.Add((T)rdr[0]);
     }
+    return ls;
+  }
 }

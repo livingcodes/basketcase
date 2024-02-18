@@ -1,43 +1,39 @@
-﻿using System;
-using System.Data;
-using System.Reflection;
-
-namespace Basketcase
+﻿namespace Basketcase;
+  using System;
+  using System.Reflection;
+// if table contains column with property name
+//   then set property to column value
+// if table does not contain column with property name
+//   then ignore property
+public class ReaderToClass<T> : IReaderConverter<T>
 {
-    // if table contains column with property name
-    //   then set property to column value
-    // if table does not contain column with property name
-    //   then ignore property
-    public class ReaderToClass<T> : IReaderConverter<T>
-    {
-        public T Convert(IDataReader reader) {
-            var item = default(T);
-            var columns = new GetColumns().From(reader);
-            var properties = typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public);
-            var fields = typeof(T).GetFields(BindingFlags.Instance | BindingFlags.Public);
-            while (reader.Read()) {
-                item = Activator.CreateInstance<T>();
-                foreach (var property in properties) {
-                    if (columns.Contains(property.Name)) {
-                        object value = reader[property.Name];
-                        // if dbnull change to c# null
-                        if (value == DBNull.Value)
-                            value = null;
-                        property.SetValue(item, value);
-                    }
-                }
-
-                foreach (var field in fields) { 
-                    if (columns.Contains(field.Name)) { 
-                        object value = reader[field.Name];
-                        if (value == DBNull.Value)
-                            value = null;
-                        field.SetValue(item, value);
-                    }
-                }
-                break;
-            }
-            return item;
+  public T Convert(IDataReader rdr) {
+    var itm = default(T);
+    var cols = new GetCols().From(rdr);
+    var props = typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public);
+    var flds = typeof(T).GetFields(BindingFlags.Instance | BindingFlags.Public);
+    while (rdr.Read()) {
+      itm = Activator.CreateInstance<T>();
+      foreach (var prop in props) {
+        if (cols.Contains(prop.Name)) {
+          obj val = rdr[prop.Name];
+          // if dbnull change to c# null
+          if (val == DBNull.Value)
+            val = null;
+          prop.SetValue(itm, val);
         }
+      }
+
+      foreach (var field in flds) {
+        if (cols.Contains(field.Name)) {
+          obj val = rdr[field.Name];
+          if (val == DBNull.Value)
+            val = null;
+          field.SetValue(itm, val);
+        }
+      }
+      break;
     }
+    return itm;
+  }
 }

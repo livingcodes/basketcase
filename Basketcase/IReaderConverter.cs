@@ -1,7 +1,5 @@
-﻿namespace Basketcase
+﻿namespace Basketcase;
+public interface IReaderConverter<T>
 {
-    public interface IReaderConverter<T>
-    {
-        T Convert(IDataReader reader);
-    }
+  T Convert(IDataReader rdr);
 }

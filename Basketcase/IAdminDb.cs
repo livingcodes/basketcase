@@ -1,9 +1,7 @@
-﻿namespace Basketcase
+﻿namespace Basketcase;
+public interface IAdminDb
 {
-    public interface IAdminDb
-    {
-        void Truncate(string table);
-        void DropTable(string table);
-        int ExecuteRaw(string sql); // won't add parameters
-    }
+  void Trun(str table);
+  void DropTbl(str table);
+  int ExeRaw(str sql); // won't add parameters
 }

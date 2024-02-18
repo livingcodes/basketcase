@@ -1,82 +1,78 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-namespace Basketcase.Tests
+﻿namespace Basketcase.Tests;
+[tc]public class QueryTests : BaseTests
 {
-    [TestClass] public class QueryTests : BaseTests
-    {
-        [ClassInitialize]
-        public static void InitializeClass(TestContext context) =>
-            initialize();
+  [ClassInitialize]
+  public static void InitializeClass(TestContext ctx) =>
+    initialize();
 
-        [TestInitialize]
-        public void RunBeforeEachTest() =>
-            createPostTable();
+  [TestInitialize]
+  public void RunBeforeEachTest() =>
+    crtPostTbl();
 
-        [TestMethod] public void QueryMultiple() {
-            var posts = db.Select<Post>("select * from post");
-            assert(posts.Count == 4);
-        }
+  [tm]public void QueryMultiple() {
+    var posts = db.Sel<Post>("select * from post");
+    t(posts.Count == 4);
+  }
 
-        [TestMethod] public void QueryMultipleWithParameter() {
-            var posts = db
-                .Parameter("@min", 2)
-                .Select<Post>("select * from post where id > @min");
-            assert(posts.Count == 2);
-        }
+  [tm]public void QryMultWPrm() {
+    var posts = db
+      .Prm("@min", 2)
+      .Sel<Post>("select * from post where id > @min");
+    t(posts.Count == 2);
+  }
 
-        [TestMethod] public void QueryMultipleWithParameters() {
-            var posts = db.Select<Post>("select * from post where id > @min and id < @max", 1, 4);
-            assert(posts.Count == 2);
-            assert(posts.Exists(p => p.Id == 2));
-            assert(posts.Exists(p => p.Id == 3));
-        }
+  [tm]public void QuyMultWPrms() {
+    var posts = db.Sel<Post>("select * from post where id > @min and id < @max", 1, 4);
+    t(posts.Count == 2);
+    t(posts.Exists(p => p.Id == 2));
+    t(posts.Exists(p => p.Id == 3));
+  }
 
-        [TestMethod] public void QuerySql() {
-            var posts = db
-                .Sql("select * from post where id > @min")
-                .Parameter("@min", 1)
-                .Select<Post>();
-            assert(posts.Count > 0);
-        }
+  [tm]public void QuerySql() {
+    var posts = db
+      .Sql("select * from post where id > @min")
+      .Prm("@min", 1)
+      .Sel<Post>();
+    t(posts.Count > 0);
+  }
 
-        [TestMethod] public void QueryPage() {
-            var posts = db.Sql("select * from post order by id")
-                .Paging(2, 2)
-                .Select<Post>();
-            assert(posts.Count == 2);
+  [tm]public void QryPg() {
+    var posts = db.Sql("select * from post order by id")
+      .Pg(2, 2)
+      .Sel<Post>();
+    t(posts.Count == 2);
 
-            posts = db
-                .Paging(1,2)
-                .Select<Post>("select * from post where id > @id order by id", 1);
-            assert(posts.Count == 2);
-            assert(!posts.Exists(p => p.Id == 1));
-        }
+    posts = db
+      .Pg(1, 2)
+      .Sel<Post>("select * from post where id > @id order by id", 1);
+    t(posts.Count == 2);
+    t(!posts.Exists(p => p.Id == 1));
+  }
 
-        [TestMethod] public void QueryOne() {
-            var post = db.SelectOne<Post>("select top 1 * from post");
-            assert(post != null);
-        }
+  [tm]public void QryOne() {
+    var post = db.SelOne<Post>("select top 1 * from post");
+    t(post != null);
+  }
 
-        [TestMethod] public void QueryOneWithParameter() {
-            var post = db
-                .Parameter("@min", 2)
-                .SelectOne<Post>("select top 1 * from post where id > @min");
-            assert(post.Id > 2);
-        }
+  [tm]public void QryOneWPrm() {
+    var post = db
+      .Prm("@min", 2)
+      .SelOne<Post>("select top 1 * from post where id > @min");
+    t(post.Id > 2);
+  }
 
-        [TestMethod] public void QueryOneWithParameters() {
-            var post = db.SelectOne<Post>("select top 1 * from post where id > @min and id < @max", 2, 4);
-            assert(post.Id == 3);
-        }
+  [tm]public void QryOneWPrms() {
+    var post = db.SelOne<Post>("select top 1 * from post where id > @min and id < @max", 2, 4);
+    t(post.Id == 3);
+  }
 
-        [TestMethod] public void QueryOneById() {
-            var post = db.SelectById<Post>(2);
-            assert(post.Id == 2);
-        }
+  [tm]public void QryOneById() {
+    var post = db.SelById<Post>(2);
+    t(post.Id == 2);
+  }
 
-        [TestMethod] public void DefaultIsSelectAll() {
-            var posts = db.Select<Post>();
-            assert(posts.Count == 4);
-        }
-    }
+  [tm]public void DfltIsSelAll() {
+    var posts = db.Sel<Post>();
+    t(posts.Count == 4);
+  }
 }

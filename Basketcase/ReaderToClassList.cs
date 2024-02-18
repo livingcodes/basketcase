@@ -1,30 +1,27 @@
-﻿using System.Reflection;
+﻿namespace Basketcase;
+  using System.Reflection;
+public class ReaderToClassList<T> : IReaderConverter<List<T>>
+{
+  public List<T> Convert(IDataReader rdr) {
+    var ls = new List<T>();
+    var flds = typeof(T).GetFields(BindingFlags.Instance | BindingFlags.Public);
+    var props = typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public);
+    var cols = new GetCols().From(rdr);
+    while (rdr.Read()) {
+      var item = System.Activator.CreateInstance<T>();
+      foreach (var prop in props)
+        if (cols.Contains(prop.Name)) {
+          var value = rdr[prop.Name];
+          if (value != System.DBNull.Value)
+            prop.SetValue(item, value);
+        }
 
-namespace Basketcase
-{  
-   public class ReaderToClassList<T> : IReaderConverter<List<T>>
-   {
-      public List<T> Convert(IDataReader reader) {
-         var list = new List<T>();
-         var fields = typeof(T).GetFields(BindingFlags.Instance | BindingFlags.Public);
-         var properties = typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public);
-         var columns = new GetColumns().From(reader);
-         while (reader.Read()) {
-            var item = System.Activator.CreateInstance<T>();
-            foreach (var property in properties)
-               if (columns.Contains(property.Name)) {
-                  var value = reader[property.Name];
-                  if (value != System.DBNull.Value)
-                     property.SetValue(item, value);
-               }
-
-            foreach (var field in fields)
-               if (columns.Contains(field.Name))
-                  if (reader[field.Name] != System.DBNull.Value)
-                     field.SetValue(item, reader[field.Name]);
-            list.Add(item);
-         }
-         return list;
-      }
-   }
+      foreach (var fld in flds)
+        if (cols.Contains(fld.Name))
+          if (rdr[fld.Name] != System.DBNull.Value)
+            fld.SetValue(item, rdr[fld.Name]);
+      ls.Add(item);
+    }
+    return ls;
+  }
 }

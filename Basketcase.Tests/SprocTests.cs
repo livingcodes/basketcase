@@ -1,87 +1,80 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using static Basketcase.Table;
+namespace Basketcase.Tests;
 
-namespace Basketcase.Tests
+[tc]public class SprocTests : BaseTests
 {
-    [TestClass]
-    public class SprocTests : BaseTests
-    {
-        [ClassInitialize]
-        public static void InitializeClass(TestContext context) {
-            initialize();
-        }
+  [ClassInitialize]
+  public static void InitializeClass(TestContext ctx) {
+    initialize();
+  }
 
-        public SprocTests() : base() {
-            var tableName = "Game";
-            db.Execute(
-                new Table(tableName)
-                    .AddColumn("Id", SqlType.Int, Syntax.Identity(1, 1))
-                    .AddColumn("Title", SqlType.VarChar(100), Syntax.NotNull)
-                    .AddColumn("Html", SqlType.VarCharMax, Syntax.NotNull)
-                    .AddColumn("DateCreated", SqlType.DateTime, Syntax.NotNull)
-                    .End().Sql
-            );
+  public SprocTests() : base() {
+    var tblNm = "Game";
+    db.Exe(
+      new Table(tblNm)
+        .AddCol("Id", SqlType.Int, Syntax.Identity(1, 1))
+        .AddCol("Title", SqlType.VarChar(100), Syntax.NotNull)
+        .AddCol("Html", SqlType.VarCharMax, Syntax.NotNull)
+        .AddCol("DateCreated", SqlType.DateTime, Syntax.NotNull)
+        .End().Sql
+    );
 
-            var admin = new AdminDb(db);
-            admin.ExecuteRaw($@"DROP PROCEDURE IF EXISTS GetGames");
-            admin.ExecuteRaw($"CREATE PROCEDURE GetGames AS SELECT * FROM {tableName}");
+    var admin = new AdminDb(db);
+    admin.ExeRaw($@"DROP PROCEDURE IF EXISTS GetGames");
+    admin.ExeRaw($"CREATE PROCEDURE GetGames AS SELECT * FROM {tblNm}");
 
-            admin.ExecuteRaw($@"DROP PROCEDURE IF EXISTS GetGamesByDateCreated");
-            admin.ExecuteRaw($@"CREATE PROCEDURE GetGamesByDateCreated(@DateCreated DATETIME) AS 
-                SELECT * FROM {tableName} WHERE DateCreated > @DateCreated");
+    admin.ExeRaw($@"DROP PROCEDURE IF EXISTS GetGamesByDateCreated");
+    admin.ExeRaw($@"CREATE PROCEDURE GetGamesByDateCreated(@DateCreated DATETIME) AS 
+                SELECT * FROM {tblNm} WHERE DateCreated > @DateCreated");
 
-            admin.ExecuteRaw($@"DROP PROCEDURE IF EXISTS GetGameById");
-            admin.ExecuteRaw(
-                $@"CREATE PROCEDURE GetGameById(@Id INT) AS BEGIN
-                    SELECT * FROM {tableName} WHERE Id = @Id
+    admin.ExeRaw($@"DROP PROCEDURE IF EXISTS GetGameById");
+    admin.ExeRaw(
+        $@"CREATE PROCEDURE GetGameById(@Id INT) AS BEGIN
+                    SELECT * FROM {tblNm} WHERE Id = @Id
                 END");
 
-            db.Insert(new Game() {
-                Title = "A", Html = "B"
-            });
-        }
+    db.Ins(new Game() {
+      Title = "A",
+      Html = "B"
+    });
+  }
 
-        [TestMethod]
-        public void QuerySproc() {
-            var games = db.Sproc("GetGames").Select<Game>();
-            Assert.IsTrue(games.Count > 0);
-        }
+  [tm]public void QrySproc() {
+    var games = db.Sproc("GetGames").Sel<Game>();
+    t(games.Count > 0);
+  }
 
-        [TestMethod]
-        public void QuerySprocWithParameter() {
-            var posts = db.Sproc("GetGamesByDateCreated")
-                .Parameter("@DateCreated", DateTime.Now.AddDays(-10))
-                .Select<Game>();
-            Assert.IsTrue(posts.Count > 0);
-        }
+  [tm]public void QrySprocWPrm() {
+    var posts = db.Sproc("GetGamesByDateCreated")
+      .Prm("@DateCreated", DateTime.Now.AddDays(-10))
+      .Sel<Game>();
+    Assert.IsTrue(posts.Count > 0);
+  }
 
-        [TestMethod]
-        public void QuerySprocWithParameterReturnSingle() {
-            var post = db.Sproc("GetGameById")
-                .Parameter("@Id", 1)
-                .SelectOne<Game>();
-            Assert.IsTrue(post.Id >= 1);
-        }
+  [tm]public void QrySprocWPrmRetSingle() {
+    var post = db.Sproc("GetGameById")
+      .Prm("@Id", 1)
+      .SelOne<Game>();
+    t(post.Id >= 1);
+  }
 
-        [TestMethod]
-        public void CacheSproc() {
-            var postList = db.Sproc("GetGamesByDateCreated")
-                .Cache("cached", 60 * 5)
-                .Parameter("@DateCreated", DateTime.Now.AddDays(-10))
-                .Select<Game>();
-            Assert.IsTrue(postList.Count > 0);
-        }
+  [tm]public void CacheSproc() {
+    var postLs = db.Sproc("GetGamesByDateCreated")
+      .Cache("cached", 60 * 5)
+      .Prm("@DateCreated", dte.Now.AddDays(-10))
+      .Sel<Game>();
+    t(postLs.Count > 0);
+  }
 
-        class Game
-        {
-            public Game() {
-                DateCreated = DateTime.Now;
-            }
-            public int Id { get; set; }
-            public string Title { get; set; }
-            public string Html { get; set; }
-            public DateTime DateCreated { get; set; }
-        }
+  class Game
+  {
+    public Game() {
+      DateCreated = dte.Now;
     }
+    public int Id { get; set; }
+    public str Title { get; set; }
+    public str Html { get; set; }
+    public dte DateCreated { get; set; }
+  }
 }

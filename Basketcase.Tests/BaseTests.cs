@@ -1,65 +1,61 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Extensions.Caching.Distributed;
+﻿using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 using static Basketcase.Table;
-using System;
-
-namespace Basketcase.Tests
+namespace Basketcase.Tests;
+[tc]public class BaseTests
 {
-    [TestClass] public class BaseTests
-    {
-        protected static IDb db;
-        protected static ICache cache;
-        
-        protected static void initialize() {
-            //this.configuration = new ConfigurationBuilder()
-            //    .AddJsonFile(@"c:\code\secrets\Tent\settings.json")
-            //    .Build();
-            //string connectionString = configuration["connectionString"];
-            
-            // i wasn't able to figure out how to construct distributed memory cache
-            // the IOptions in particular
-            // so i used the service provider to build it
-            IServiceCollection services = new ServiceCollection();
-            services.AddDistributedMemoryCache();
-            var serviceProvider = services.BuildServiceProvider();
-            var distributedCache = serviceProvider.GetService<IDistributedCache>();
-            cache = new SerializedCache(distributedCache);
+  protected static IDb db;
+  protected static ICache cache;
 
-            var connectionString = "server=(LocalDb)\\MSSQLLocalDB; database=Basketcase; trusted_connection=true;";
+  protected static void initialize() {
+    //this.configuration = new ConfigurationBuilder()
+    //    .AddJsonFile(@"c:\code\secrets\Tent\settings.json")
+    //    .Build();
+    //string connectionString = configuration["connectionString"];
 
-            db = new Db(
-                new ConnectionFactory(connectionString),
-                new Reader(),
-                cache,
-                new TableName_ClassName()
-            );
-        }
-        
-        protected static void createTable(string tableName) {
-            var sql = new Table(tableName)
-                .AddColumn("Id", SqlType.Int, Syntax.Identity(1, 1))
-                .AddColumn("Html", SqlType.VarChar(200))
-                .AddColumn("DateCreated", SqlType.DateTime)
-                .End()
-                .Sql;
-            db.Execute(sql);
-        }
+    // i wasn't able to figure out how to construct distributed memory cache
+    // the IOptions in particular
+    // so i used the service provider to build it
+    IServiceCollection svcs = new ServiceCollection();
+    svcs.AddDistributedMemoryCache();
+    var svcPrvdr = svcs.BuildServiceProvider();
+    var distCache = svcPrvdr.GetService<IDistributedCache>();
+    cache = new SerializedCache(distCache);
 
-        protected static void createPostTable() {
-            createTable("Post");
-            for (var i = 0; i < 4; i++)
-                db.Insert(new Post { Html = $"Post {i}" });
-        }
+    var conStr = "server=(LocalDb)\\MSSQLLocalDB; database=Basketcase; trusted_connection=true;";
 
-        protected void assert(bool condition) {
-            Assert.IsTrue(condition);
-        }
+    db = new Db(
+      new ConFct(conStr),
+      new Reader(),
+      cache,
+      new TblNm_ClsNm()
+    );
+  }
 
-        public class Post {
-            public int Id { get; set; }
-            public string Html { get; set; }
-            public DateTime DateCreated = DateTime.Now;
-        }
-    }
+  protected static void crtTbl(str tblNm) {
+    var sql = new Table(tblNm)
+      .AddCol("Id", SqlType.Int, Syntax.Identity(1, 1))
+      .AddCol("Html", SqlType.VarChar(200))
+      .AddCol("DateCreated", SqlType.DateTime)
+      .End()
+      .Sql;
+    db.Exe(sql);
+  }
+
+  protected static void crtPostTbl() {
+    crtTbl("Post");
+    for (var i = 0; i < 4; i++)
+      db.Ins(new Post { Html = $"Post {i}" });
+  }
+
+  protected void t(bln condition) {
+    Assert.IsTrue(condition);
+  }
+
+  public class Post
+  {
+    public int Id { get; set; }
+    public str Html { get; set; }
+    public dte DateCreated = dte.Now;
+  }
 }

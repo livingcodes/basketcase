@@ -1,21 +1,18 @@
-﻿using System;
-namespace Basketcase
+﻿namespace Basketcase;
+public class ReaderToList<T> : IReaderConverter<List<T>>
 {
-    public class ReaderToList<T> : IReaderConverter<List<T>>
-    {
-        public List<T> Convert(IDataReader reader) {
-            if (typeof(T) == typeof(string)
-            ||  typeof(T) == typeof(int)
-            ||  typeof(T) == typeof(DateTime)
-            ||  typeof(T) == typeof(double)
-            ||  typeof(T) == typeof(decimal)
-            ||  typeof(T) == typeof(long)
-            ||  typeof(T) == typeof(bool))
-                return new ReaderToValueList<T>().Convert(reader);
-            else if (typeof(T).IsClass)
-                return new ReaderToClassList<T>().Convert(reader);
-            else
-                return new ReaderToStructList<T>().Convert(reader);
-        }
-    }
+  public List<T> Convert(IDataReader rdr) {
+    if (typeof(T) == typeof(str)
+    || typeof(T) == typeof(int)
+    || typeof(T) == typeof(dte)
+    || typeof(T) == typeof(double)
+    || typeof(T) == typeof(dec)
+    || typeof(T) == typeof(long)
+    || typeof(T) == typeof(bool))
+      return new ReaderToValueList<T>().Convert(rdr);
+    else if (typeof(T).IsClass)
+      return new ReaderToClassList<T>().Convert(rdr);
+    else
+      return new ReaderToStructList<T>().Convert(rdr);
+  }
 }

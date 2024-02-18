@@ -1,29 +1,26 @@
-﻿using System;
-using System.Reflection;
-
-namespace Basketcase
+﻿namespace Basketcase;
+  using System;
+  using System.Reflection;
+public class ReaderToStruct<T> : IReaderConverter<T>
 {
-    public class ReaderToStruct<T> : IReaderConverter<T>
-    {
-        public T Convert(IDataReader reader) {
-            var item = default(T);
-            object boxed = item;
-            var columns = new GetColumns().From(reader);
-            var properties = typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public);
-            while (reader.Read()) {
-                foreach (var property in properties) {
-                    if (columns.Contains(property.Name)) {
-                        object value = reader[property.Name];
-                        // if dbnull change to c# null
-                        if (value == DBNull.Value)
-                            value = null;
-                        property.SetValue(boxed, value);
-                    }
-                }
-                item = (T)boxed;
-                break;
-            }
-            return item;
+  public T Convert(IDataReader rdr) {
+    var itm = default(T);
+    obj boxed = itm;
+    var cols = new GetCols().From(rdr);
+    var props = typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public);
+    while (rdr.Read()) {
+      foreach (var prop in props) {
+        if (cols.Contains(prop.Name)) {
+          obj val = rdr[prop.Name];
+          // if dbnull change to c# null
+          if (val == DBNull.Value)
+            val = null;
+          prop.SetValue(boxed, val);
         }
+      }
+      itm = (T)boxed;
+      break;
     }
+    return itm;
+  }
 }

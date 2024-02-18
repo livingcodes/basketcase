@@ -1,127 +1,124 @@
-﻿using System;
-namespace Basketcase
+﻿namespace Basketcase;
+public partial class Db : IDb
 {
-    public partial class Db : IDb
-    {
-        public Db(
-            IConnectionFactory connectionFactory,
-            IRead reader,
-            ICache cache,
-            ITableName tableName = null
-        ) {
-            this.reader = reader;
-            this.connectionFactory = connectionFactory;
-            this.cache = cache;
-            this.tableName = tableName ?? new TableName_ClassName();
-            this.getParameterNamesFromSql = new GetParameterNamesFromSql();
-            this.parameters = new List<(string name, object value)>();
-        }
-        public IConnectionFactory connectionFactory { get; private set; }
-        IRead reader;
-        ICache cache;
-        ITableName tableName;
-        GetParameterNamesFromSql getParameterNamesFromSql;
+  public Db(
+    IConFct conFct,
+    IRead rd,
+    ICache cache,
+    ITblNm tblNm = null
+  ) {
+    this.rd = rd;
+    this.conFct = conFct;
+    this.cache = cache;
+    this.tblNm = tblNm ?? new TblNm_ClsNm();
+    this.getPrmNmsFrmSql = new GetPrmNmsFrmSql();
+    this.prms = new List<(str name, obj val)>();
+  }
+  public IConFct conFct { get; private set; }
+  IRead rd;
+  ICache cache;
+  ITblNm tblNm;
+  GetPrmNmsFrmSql getPrmNmsFrmSql;
 
-        /// <summary>Insert content. Return new ID and rows affected.</summary>
-        /// <param name="content">Content to insert</param>
-        /// <returns>New ID and rows affected</returns>
-        public (int id, int numberRowsAffected) Insert<T>(T content) {
-            var connection = connectionFactory.Create();
-            SqlCommand command = null;
-            int numberRowsAffected = 0;
-            IDataReader reader = null;
-            int id = -1;
-            try {
-                connection.Open();
-                command = (SqlCommand)connection.CreateCommand();
-                ISqlBuilder sqlBuilder = new SqlBuilder<T>(content, command, this, cache, tableName);
-                var sql = sqlBuilder.BuildInsertSql();
-                command.CommandText = sql;
-                reader = command.ExecuteReader();
-                numberRowsAffected = reader.RecordsAffected;
-                id = (int)this.reader.ReadOne<decimal>(reader); // had to get @@IDENTITY as decimal and then convert to int
-            } finally {
-                if (command != null)
-                    command.Dispose();
-                if (connection.State != ConnectionState.Closed)
-                    connection.Close();
-            }
-            return (id, numberRowsAffected);
-        }
-
-        /// <summary>Updates content and returns number of rows affected</summary>
-        public int Update<T>(T instance) {
-            var connection = connectionFactory.Create();
-            SqlCommand command = null;
-            int rowsAffected = 0;
-
-            try {
-                connection.Open();
-                command = (SqlCommand)connection.CreateCommand();
-                ISqlBuilder sqlBuilder = new SqlBuilder<T>(instance, command, this, cache, tableName);
-                var sql = sqlBuilder.BuildUpdateSql();
-                command.CommandText = sql;
-                rowsAffected = command.ExecuteNonQuery();
-            } finally {
-                if (command != null)
-                    command.Dispose();
-                if (connection.State != ConnectionState.Closed)
-                    connection.Close();
-            }
-            return rowsAffected;
-        }
-
-        public int Delete<T>(int id) {
-            var table = tableName.Get<T>();
-            int rowsAffected = 0;
-            var connection = connectionFactory.Create();
-            SqlCommand command = null;
-            try {
-                connection.Open();
-                command = (SqlCommand)connection.CreateCommand();
-                command.CommandText = $"delete from {table} where id = {id}";
-                rowsAffected = command.ExecuteNonQuery();
-            } finally {
-                if (command != null)
-                    command.Dispose();
-                if (connection.State != ConnectionState.Closed)
-                    connection.Close();
-            }
-            return rowsAffected;
-        }
-
-        public int Execute(string sql, params object[] parameters) {
-            var connection = connectionFactory.Create();
-            int affectedRows = -1;
-            IDbCommand command = null;
-            try {
-                connection.Open();
-                command = connection.CreateCommand();
-                command.CommandText = sql;
-                var parameterNames = new GetParameterNamesFromSql().Execute(sql);
-                if (parameters.Length != parameterNames.Count)
-                    throw new Exception($"Parameter name and value counts are not equal. Parameter name count: {parameterNames.Count}, Parameter value count: {parameters.Length}");
-                for (var i = 0; i < parameters.Length; i++) {
-                    var p = command.CreateParameter();
-                    p.ParameterName = parameterNames[i];
-                    p.Value = parameters[i];
-                    command.Parameters.Add(p);
-                }
-                affectedRows = command.ExecuteNonQuery();
-            } finally {
-                if (command != null)
-                    command.Dispose();
-                if (connection.State != ConnectionState.Closed)
-                    connection.Close();
-            }
-            return affectedRows;
-        }
-
-        public IAdminDb Admin { get {
-            if (_admin == null)
-                _admin = new AdminDb(this);
-            return _admin;
-        } }
-        IAdminDb _admin;
+  /// <summary>Insert content. Return new ID and rows affected.</summary>
+  /// <param name="inst">Content to insert</param>
+  /// <returns>New ID and rows affected</returns>
+  public (int id, int rowCnt) Ins<T>(T inst) {
+    var con = conFct.Crt();
+    SqlCommand cmd = null;
+    int rowCnt = 0;
+    IDataReader rdr = null;
+    int id = -1;
+    try {
+      con.Open();
+      cmd = (SqlCommand)con.CreateCommand();
+      var sqlBldr = new SqlBldr<T>(inst, cmd, this, cache, tblNm);
+      var sql = sqlBldr.BldInsSql();
+      cmd.CommandText = sql;
+      rdr = cmd.ExecuteReader();
+      rowCnt = rdr.RecordsAffected;
+      id = (int)this.rd.ReadOne<dec>(rdr); // had to get @@IDENTITY as decimal and then convert to int
+    } finally {
+      if (cmd != null)
+        cmd.Dispose();
+      if (con.State != ConnectionState.Closed)
+        con.Close();
     }
+    return (id, rowCnt);
+  }
+
+  /// <summary>Updates content and returns number of rows affected</summary>
+  public int Upd<T>(T inst) {
+    var con = conFct.Crt();
+    SqlCommand cmd = null;
+    int rowCnt = 0;
+
+    try {
+      con.Open();
+      cmd = (SqlCommand)con.CreateCommand();
+      ISqlBldr sqlBldr = new SqlBldr<T>(inst, cmd, this, cache, tblNm);
+      var sql = sqlBldr.BldUpdSql();
+      cmd.CommandText = sql;
+      rowCnt = cmd.ExecuteNonQuery();
+    } finally {
+      if (cmd != null)
+        cmd.Dispose();
+      if (con.State != ConnectionState.Closed)
+        con.Close();
+    }
+    return rowCnt;
+  }
+
+  public int Del<T>(int id) {
+    str tbl = tblNm.Get<T>();
+    int rowCnt = 0;
+    var con = conFct.Crt();
+    SqlCommand cmd = null;
+    try {
+      con.Open();
+      cmd = (SqlCommand)con.CreateCommand();
+      cmd.CommandText = $"DELETE FROM {tbl} WHERE id = {id}";
+      rowCnt = cmd.ExecuteNonQuery();
+    } finally {
+      if (cmd != null)
+        cmd.Dispose();
+      if (con.State != ConnectionState.Closed)
+        con.Close();
+    }
+    return rowCnt;
+  }
+
+  public int Exe(str sql, params obj[] prms) {
+    var con = conFct.Crt();
+    int rowCnt = -1;
+    IDbCommand cmd = null;
+    try {
+      con.Open();
+      cmd = con.CreateCommand();
+      cmd.CommandText = sql;
+      var prmNm = new GetPrmNmsFrmSql().Exe(sql);
+      if (prms.Length != prmNm.Count)
+        throw new Ex($"Parameter name and value counts are not equal. Parameter name count: {prmNm.Count}, Parameter value count: {prms.Length}");
+      for (int i = 0; i < prms.Length; i++) {
+        var prm = cmd.CreateParameter();
+        prm.ParameterName = prmNm[i];
+        prm.Value = prms[i];
+        cmd.Parameters.Add(prm);
+      }
+      rowCnt = cmd.ExecuteNonQuery();
+    } finally {
+      if (cmd != null)
+        cmd.Dispose();
+      if (con.State != ConnectionState.Closed)
+        con.Close();
+    }
+    return rowCnt;
+  }
+
+  public IAdminDb Admin { get {
+    if (_admin == null)
+      _admin = new AdminDb(this);
+    return _admin;
+  } }
+  IAdminDb _admin;
 }

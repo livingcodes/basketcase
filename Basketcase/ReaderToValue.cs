@@ -1,14 +1,12 @@
-﻿namespace Basketcase
+﻿namespace Basketcase;
+public class ReaderToValue<T> : IReaderConverter<T>
 {
-    public class ReaderToValue<T> : IReaderConverter<T>
-    {
-        public T Convert(IDataReader reader) {
-            var value = default(T);
-            while (reader.Read()) {
-                value = (T)reader[0];
-                break;
-            }
-            return value;
-        }
+  public T Convert(IDataReader rdr) {
+    var val = default(T);
+    while (rdr.Read()) {
+      val = (T)rdr[0];
+      break;
     }
+    return val;
+  }
 }

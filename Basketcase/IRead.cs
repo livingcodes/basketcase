@@ -1,8 +1,6 @@
-﻿namespace Basketcase
+﻿namespace Basketcase;
+public interface IRead
 {
-    public interface IRead
-    {
-        T ReadOne<T>(IDataReader reader);
-        List<T> ReadList<T>(IDataReader reader);
-    }
+  T ReadOne<T>(IDataReader rdr);
+  List<T> ReadLs<T>(IDataReader rdr);
 }
