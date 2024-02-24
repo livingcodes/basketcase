@@ -70,7 +70,9 @@ public class SqlBldr<T> : ISqlBldr
     foreach (var prop in props) {
       if (prop.Name.ToUpper() == "ID") {
         var objId = prop.GetValue(inst);
-        id = objId == null ? "0" : objId.ToString();
+        if (objId == null)
+          throw new Ex($"Cannot update {tblNm} because ID is null");
+        id = objId.ToString();
         //id = property.GetValue(instance).ToStringOr("0");
         cmd.Parameters.AddWithValue("@Id", id);
         continue;
@@ -89,7 +91,9 @@ public class SqlBldr<T> : ISqlBldr
     foreach (var fld in flds) {
       if (fld.Name.ToUpper() == "ID") {
         var objId = fld.GetValue(inst);
-        id = objId == null ? "0" : objId.ToString();
+        if (objId == null)
+          throw new Ex($"Cannot update {tblNm} because ID is null");
+        id = objId.ToString();
         cmd.Parameters.AddWithValue("@Id", id);
         continue;
       }
