@@ -72,6 +72,7 @@ public class SqlBldr<T> : ISqlBldr
         var objId = prop.GetValue(inst);
         id = objId == null ? "0" : objId.ToString();
         //id = property.GetValue(instance).ToStringOr("0");
+        cmd.Parameters.AddWithValue("@Id", id);
         continue;
       }
       if (!tblCols.Contains(prop.Name))
@@ -89,6 +90,7 @@ public class SqlBldr<T> : ISqlBldr
       if (fld.Name.ToUpper() == "ID") {
         var objId = fld.GetValue(inst);
         id = objId == null ? "0" : objId.ToString();
+        cmd.Parameters.AddWithValue("@Id", id);
         continue;
       }
       var val = fld.GetValue(inst);
@@ -98,7 +100,7 @@ public class SqlBldr<T> : ISqlBldr
       cmd.Parameters.AddWithValue("@" + fld.Name, val);
     }
     setters = setters.Substring(0, setters.Length - 2);
-    var sql = $@"update [{tblNm}] set {setters} where id = {id}";
+    var sql = $@"UPDATE [{tblNm}] SET {setters} WHERE Id = @Id";
     return sql;
   }
 }
