@@ -93,6 +93,8 @@ public class SqlBldr<T> : ISqlBldr
         cmd.Parameters.AddWithValue("@Id", id);
         continue;
       }
+      if (!tblCols.Contains(fld.Name))
+        continue;
       var val = fld.GetValue(inst);
       if (val == null)
         val = DBNull.Value;
