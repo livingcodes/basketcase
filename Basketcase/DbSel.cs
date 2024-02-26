@@ -123,6 +123,10 @@ public partial class Db
     Prm("@Id", id)
     .SelOne<T>($"WHERE Id = @Id");
 
+  public T SelById<T>(str id) =>
+    Prm("@Id", id)
+    .SelOne<T>($"WHERE Id = @Id");
+
   List<T> sel<T>(str sql) {
     var ls = new List<T>();
     var con = conFct.Crt();
