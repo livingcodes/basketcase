@@ -23,10 +23,10 @@ public partial class Db : IDb
   /// <summary>Insert content. Return new ID and rows affected.</summary>
   /// <param name="inst">Content to insert</param>
   /// <returns>New ID and rows affected</returns>
-  public (int id, int rowCnt) Ins<T>(T inst) {
+  public (int id, int rowCt) Ins<T>(T inst) {
     var con = conFct.Crt();
     SqlCommand cmd = null;
-    int rowCnt = 0;
+    int rowCt = 0;
     IDataReader rdr = null;
     int id = -1;
     try {
@@ -36,7 +36,7 @@ public partial class Db : IDb
       var sql = sqlBldr.BldInsSql();
       cmd.CommandText = sql;
       rdr = cmd.ExecuteReader();
-      rowCnt = rdr.RecordsAffected;
+      rowCt = rdr.RecordsAffected;
       id = (int)this.rd.ReadOne<dec>(rdr); // had to get @@IDENTITY as decimal and then convert to int
     } finally {
       if (cmd != null)
@@ -44,7 +44,34 @@ public partial class Db : IDb
       if (con.State != ConnectionState.Closed)
         con.Close();
     }
-    return (id, rowCnt);
+    return (id, rowCt);
+  }
+
+  /// <summary>Inserts content of type T. Returns new ID of type R and rows affected count.</summary>
+  /// <param name="inst">Content to insert</param>
+  /// <returns>New ID and rows affected count</returns>
+  public (R id, int rowCt) Ins<T,R>(T inst) {
+    var con = conFct.Crt();
+    SqlCommand cmd = null;
+    int rowCt = 0;
+    IDataReader rdr = null;
+    R id = default(R);
+    try {
+      con.Open();
+      cmd = (SqlCommand)con.CreateCommand();
+      var sqlBldr = new SqlBldr<T>(inst, cmd, this, cache, tblNm);
+      var sql = sqlBldr.BldInsSql(genGuid:true);
+      cmd.CommandText = sql;
+      rdr = cmd.ExecuteReader();
+      rowCt = rdr.RecordsAffected;
+      id = this.rd.ReadOne<R>(rdr); // had to get @@IDENTITY as decimal and then convert to int
+    } finally {
+      if (cmd != null)
+        cmd.Dispose();
+      if (con.State != ConnectionState.Closed)
+        con.Close();
+    }
+    return (id, rowCt);
   }
 
   /// <summary>Updates content and returns number of rows affected</summary>

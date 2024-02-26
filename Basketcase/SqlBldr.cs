@@ -16,7 +16,7 @@ public class SqlBldr<T> : ISqlBldr
   ICache cache;
   ITblNm tblNm;
 
-  public str BldInsSql() {
+  public str BldInsSql(bln genGuid = false) {
     var tblNm = this.tblNm.Get(inst);
     var props = typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public);
     var tblCols = new GetCols().From(tblNm, db, cache);
@@ -24,15 +24,20 @@ public class SqlBldr<T> : ISqlBldr
     var vals = "";
 
     foreach (var prop in props) {
-      if (prop.Name.ToUpper() == "ID")
-        continue;
       if (!tblCols.Contains(prop.Name))
         continue;
+      if (prop.Name.ToUpper() == "ID") {
+        if (genGuid) {
+          colNs += "Id, ";
+          vals += "@NewId, ";
+        }
+        continue;
+      }
 
       var val = prop.GetValue(inst);
       if (val is null)
         val = DBNull.Value;
-      colNs += prop.Name + ", ";
+      colNs += $"[{prop.Name}], ";
 
       cmd.Parameters.AddWithValue("@" + prop.Name, val);
       vals += "@" + prop.Name + ", ";
@@ -40,14 +45,19 @@ public class SqlBldr<T> : ISqlBldr
 
     var flds = typeof(T).GetFields(BindingFlags.Instance | BindingFlags.Public);
     foreach (var fld in flds) {
-      if (fld.Name.ToUpper() == "ID")
+      if (fld.Name.ToUpper() == "ID") {
+        if (genGuid) {
+          colNs += "Id, ";
+          vals += "@NewId, ";
+        }
         continue;
+      }
       if (!tblCols.Contains(fld.Name))
         continue;
       var value = fld.GetValue(inst);
       if (value is null)
         value = DBNull.Value;
-      colNs += fld.Name + ", ";
+      colNs += $"[{fld.Name}], ";
 
       cmd.Parameters.AddWithValue("@" + fld.Name, value);
       vals += "@" + fld.Name + ", ";
@@ -55,8 +65,19 @@ public class SqlBldr<T> : ISqlBldr
 
     colNs = colNs.Substring(0, colNs.Length - 2);
     vals = vals.Substring(0, vals.Length - 2);
-    str sql = $@"INSERT INTO [{tblNm}] ({colNs}) VALUES ({vals})
-            SELECT @@IDENTITY Id";
+    str sql = "";
+    if (genGuid) {
+      sql = $"""
+        DECLARE @NewId VARCHAR(36) = NEWID()
+        INSERT INTO [{tblNm}] ({colNs}) VALUES ({vals})
+        SELECT @NewId Id
+        """;
+    } else {
+      sql = $"""
+        INSERT INTO [{tblNm}] ({colNs}) VALUES ({vals})
+        SELECT @@IDENTITY Id
+        """;
+    }
     return sql;
   }
 
