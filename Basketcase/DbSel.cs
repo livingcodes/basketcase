@@ -66,7 +66,7 @@ public partial class Db
     return list;
   }
 
-  public T SelOne<T>(str sql = null, params obj[] prms) {
+  public T Sel1<T>(str sql = null, params obj[] prms) {
     // get from cache
     if (cacheKey != null) {
       var cacheVal = cache.Get<T>(cacheKey);
@@ -121,11 +121,11 @@ public partial class Db
 
   public T SelById<T>(int id) =>
     Prm("@Id", id)
-    .SelOne<T>($"WHERE Id = @Id");
+    .Sel1<T>($"WHERE Id = @Id");
 
   public T SelById<T>(str id) =>
     Prm("@Id", id)
-    .SelOne<T>($"WHERE Id = @Id");
+    .Sel1<T>($"WHERE Id = @Id");
 
   List<T> sel<T>(str sql) {
     var ls = new List<T>();
