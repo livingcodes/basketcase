@@ -115,6 +115,27 @@ public partial class Db : IDb
     return rowCnt;
   }
 
+  public int Del<T>(str id) {
+    str tbl = tblNm.Get<T>();
+    int rowCt = 0;
+    var con = conFct.Crt();
+    SqlCommand cmd = null;
+    try {
+      con.Open();
+      cmd = (SqlCommand)con.CreateCommand();
+      var prm = cmd.CreateParameter();
+      cmd.Parameters.AddWithValue("Id", id);
+      cmd.CommandText = $"DELETE FROM {tbl} WHERE Id = @Id";
+      rowCt = cmd.ExecuteNonQuery();
+    } finally {
+      if (cmd != null)
+        cmd.Dispose();
+      if (con.State != ConnectionState.Closed)
+        con.Close();
+    }
+    return rowCt;
+  }
+
   public int Exe(str sql, params obj[] prms) {
     var con = conFct.Crt();
     int rowCnt = -1;
