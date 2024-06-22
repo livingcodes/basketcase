@@ -96,6 +96,18 @@
     t(posts.Rows.Count == 3);
   }
 
+  [tm]public void CachePost() {
+    var posts = db
+      .Cache("Top2Posts", 60)
+      .Sel<Post>("select top 2 * from post order by id");
+    t(posts.Count == 2);
+
+    posts = db
+      .Cache("Top2Posts", 60)
+      .Sel<Post>("anything");
+    t(posts.Count == 2);
+  }
+
   [tm]public void CacheTbl() {
     var posts = db
       .Cache("Top2Posts", 60)

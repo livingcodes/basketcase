@@ -56,8 +56,10 @@ public partial class Db
     // get from cache
     if (cacheKey != null) {
       var cacheVal = cache.Get<List<T>>(cacheKey);
-      if (cacheVal != null)
+      if (cacheVal != null) {
+        setQryToNul();
         return (List<T>)cacheVal;
+      }
     }
 
     // sql syntax
