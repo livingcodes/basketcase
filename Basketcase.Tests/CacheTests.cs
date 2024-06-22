@@ -45,11 +45,11 @@
   [tm]public void CacheOne() {
     var post = db
       .Cache("CacheSelectOne", 60)
-      .SelOne<Post>("select * from post where id = 2");
+      .Sel1<Post>("select * from post where id = 2");
     t(post.Id == 2);
 
     var cached = db.Cache("CacheSelectOne", 60)
-      .SelOne<Post>("anything");
+      .Sel1<Post>("anything");
     t(cached.Id == 2);
   }
 
@@ -60,7 +60,7 @@
     t(post.Id == 2);
 
     var cached = db.Cache("CacheOneById", 60)
-      .SelOne<Post>("anything");
+      .Sel1<Post>("anything");
     t(post.Id == 2);
   }
 }

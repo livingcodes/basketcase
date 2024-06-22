@@ -9,6 +9,49 @@ public partial class Db
 
   public bln IsSproc => sprocName != null;
 
+  public DataTable SelTbl(str sql = null, params obj[] prms) {
+    // get from cache
+    if (cacheKey != null) {
+      var cacheVal = cache.Get<DataTable>(cacheKey);
+      if (cacheVal != null) {
+        setQryToNul();
+        return (DataTable)cacheVal;
+      }
+    }
+
+    // sql syntax
+    if (sql == null || sql == "")
+      sql = this.sql;
+
+    // parameters
+    if (!IsSproc) {
+      var prmNms = getPrmNmsFrmSql.Exe(sql);
+      // todo: are count and length checks necessary
+      if (prmNms.Count > 0) {
+        if (prms.Length > 0) {
+          if (prms.Length != prmNms.Count)
+            throw new Ex($"Parameter name and value counts are not equal. Parameter name count: {prmNms.Count}, Parameter value count: {prms.Length}");
+          for (var i = 0; i < prms.Length; i++)
+            Prm(prmNms[i], prms[i]);
+        }
+      }
+    }
+
+    if (!IsSproc && hasPg)
+      sql += pgSql;
+    if (hasPg) {
+      Prm("@PageNumber", pgNum);
+      Prm("@PageSize", pgSz);
+    }
+
+    DataTable tbl = selTbl(sql);
+
+    setCache(tbl);
+    setQryToNul();
+
+    return tbl;
+  }
+
   public List<T> Sel<T>(str sql = null, params obj[] prms) {
     // get from cache
     if (cacheKey != null) {
@@ -112,7 +155,7 @@ public partial class Db
       }
     }
 
-    var content = selOne<T>(sql);
+    var content = sel1<T>(sql);
 
     setCache(content);
     setQryToNul();
@@ -158,7 +201,38 @@ public partial class Db
     return ls;
   }
 
-  T selOne<T>(str sql) {
+  DataTable selTbl(str sql) {
+    DataTable tbl = new();
+    var con = conFct.Crt();
+    IDbCommand cmd = null;
+    try {
+      con.Open();
+      cmd = con.CreateCommand();
+
+      if (sprocName != null) {
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.CommandText = sprocName;
+      } else {
+        cmd.CommandText = sql;
+      }
+      foreach (var prm in prms) {
+        var p = cmd.CreateParameter();
+        p.ParameterName = prm.name;
+        p.Value = prm.val;
+        cmd.Parameters.Add(p);
+      }
+      var rdr = cmd.ExecuteReader();
+      tbl.Load(rdr);
+    } finally {
+      if (cmd != null)
+        cmd.Dispose();
+      if (con.State != ConnectionState.Closed)
+        con.Close();
+    }
+    return tbl;
+  }
+
+  T sel1<T>(str sql) {
     var content = default(T);
     var con = conFct.Crt();
     IDbCommand cmd = null;

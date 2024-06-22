@@ -45,7 +45,7 @@ namespace Basketcase.Tests;
   }
 
   [tm]public void SelToStruct() {
-    var post = db.SelOne<Post>("select top 1 * from post");
+    var post = db.Sel1<Post>("select top 1 * from post");
     t(post.Id == 1);
     t(post.Html == "abc");
   }
@@ -56,7 +56,7 @@ namespace Basketcase.Tests;
   }
 
   [tm]public void SelStr() {
-    var html = db.SelOne<str>("select top 1 html from post");
+    var html = db.Sel1<str>("select top 1 html from post");
     t(html == "abc");
   }
 
@@ -66,7 +66,7 @@ namespace Basketcase.Tests;
   }
 
   [tm]public void SelInt() {
-    var id = db.SelOne<int>("select top 1 id from post");
+    var id = db.Sel1<int>("select top 1 id from post");
     t(id == 1);
   }
 
@@ -76,7 +76,7 @@ namespace Basketcase.Tests;
   }
 
   [tm]public void SelDte() {
-    var date = db.SelOne<dte>("select top 1 publishdate from post");
+    var date = db.Sel1<dte>("select top 1 publishdate from post");
     t(date == actual.PublishDate);
   }
 
@@ -86,7 +86,7 @@ namespace Basketcase.Tests;
   }
 
   [tm]public void SelDbl() {
-    var num = db.SelOne<double>("select top 1 score from post");
+    var num = db.Sel1<double>("select top 1 score from post");
     t(num == actual.Score);
   }
 
@@ -96,7 +96,7 @@ namespace Basketcase.Tests;
   }
 
   [tm]public void SelDec() {
-    var adRevenue = db.SelOne<decimal>("select top 1 adrevenue from post");
+    var adRevenue = db.Sel1<decimal>("select top 1 adrevenue from post");
     Assert.IsTrue(adRevenue == actual.AdRevenue);
   }
 
@@ -106,7 +106,7 @@ namespace Basketcase.Tests;
   }
 
   [tm]public void SelectLong() {
-    var len = db.SelOne<long>("select top 1 [length] from post");
+    var len = db.Sel1<long>("select top 1 [length] from post");
     t(len == actual.Length);
   }
 
@@ -141,7 +141,7 @@ namespace Basketcase.Tests;
   }
 
   [tm]public void SelBln() {
-    var isActive = db.SelOne<bool>("select top 1 isactive from post");
+    var isActive = db.Sel1<bool>("select top 1 isactive from post");
     t(isActive == true);
   }
 

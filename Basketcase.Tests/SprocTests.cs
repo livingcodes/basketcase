@@ -49,13 +49,13 @@ namespace Basketcase.Tests;
     var posts = db.Sproc("GetGamesByDateCreated")
       .Prm("@DateCreated", DateTime.Now.AddDays(-10))
       .Sel<Game>();
-    Assert.IsTrue(posts.Count > 0);
+    t(posts.Count > 0);
   }
 
   [tm]public void QrySprocWPrmRetSingle() {
     var post = db.Sproc("GetGameById")
       .Prm("@Id", 1)
-      .SelOne<Game>();
+      .Sel1<Game>();
     t(post.Id >= 1);
   }
 

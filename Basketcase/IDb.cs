@@ -7,6 +7,7 @@ public interface IDb
   int Del<T>(int id);
   int Exe(str sql, params obj[] prms);
   List<T> Sel<T>(str sql = "", params obj[] prms);
+  DataTable SelTbl(str sql = null, params obj[] prms);
   T Sel1<T>(str sql = "", params obj[] prms);
   T SelById<T>(int id);
   T SelById<T>(str id);
